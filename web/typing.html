@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-hant-tw">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="Author" content="Terric Chen, terric_AT_gmail_com">
+	<title>英打遊戲</title>
+	<link href="typing.ico" rel="icon">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+	<style>
+		body {
+			font-family: Consolas, Verdana, Arial, sans-serif;
+		}
+		#board {
+			position: relative;
+		}
+		.word {
+			position: absolute;
+			background-color: salmon;
+			padding: 0px 10px;
+		}
+		mark {
+			background: transparent;
+			color: yellow;
+		}
+	</style>
+</head>
+<body onload="gameInit();" onresize="boardResize();">
+	<div class="card vh-100">
+		<div class="card-header fs-4">
+			Time:<span id="time">0</span>s &emsp;&emsp; Score:<span id="score">0</span>
+			<span id="wordCount"> &emsp;&emsp; Words:<span id="countTotal">0/0</span>
+				<button class="btn btn-sm btn-danger" id="btnStop" onclick="gameStop();"><i class="bi bi-power"></i></button>
+			</span>
+			<div class="d-inline-flex float-end">
+				<button class="btn btn-sm btn-warning mx-1" data-bs-toggle="modal" data-bs-target="#modalSettings"><i class="bi bi-gear"></i></button>
+				<button class="btn btn-sm btn-success mx-1" data-bs-toggle="modal" data-bs-target="#modalRanks"><i class="bi bi-bar-chart"></i></button>
+				<button class="btn btn-sm btn-secondary mx-1" data-bs-toggle="modal" data-bs-target="#modalInfo"><i class="bi bi-info-circle"></i></button>
+			</div>
+		</div>
+		<div class="card-body bg-primary-subtle" id="board"></div>
+		<div class="card-footer text-body-secondary"><div class="row">
+			<div class="col-12 col-sm-9 col-md-6">
+				<input type="text" id="input" class="form-control form-control-lg" autocapitalize="off" placeholder="在此輸入，按Enter送出" onkeydown="mykeyDown(this);" onkeyup="mykeyUp(this);">
+			</div>
+		</div></div>
+		<div class="toast-container d-flex justify-content-center vh-100 vw-100">
+			<div class="toast text-bg-info align-self-center">
+				<div class="d-flex">
+					<div class="toast-body fs-4" id="msg"></div>
+					<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="modalSettings" class="modal" tabindex="-1" data-bs-backdrop="static">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header"><h5 class="modal-title fw-bold">設定</h5></div>
+				<div class="modal-body">
+					<select class="form-select mb-2" onchange="gameLv=this.value;">
+						<option value="0" selected disabled>請選擇題庫：</option>
+						<option value="j1">國中基本單字(1229)</option>
+						<option value="j2">國中進階單字(779)</option>
+						<option value="s0">高中英單不分級(135)</option>
+						<option value="s1">高中英單第一級(1047)</option>
+						<option value="s2">高中英單第二級(1039)</option>
+						<option value="s3">高中英單第三級(1018)</option>
+						<option value="s4">高中英單第四級(1022)</option>
+						<option value="s5">高中英單第五級(1006)</option>
+						<option value="s6">高中英單第六級(1030)</option>
+					</select>
+					<div class="form-check form-switch form-check-inline">
+						<input class="form-check-input" type="checkbox" id="cbBGM" oninput="toggleBGM(this);" checked>
+						<label class="form-check-label">背景音樂 BGM</label>
+						<input type="range" id="volBGM" min="0" max="1" step="0.05" oninput="get('bgm').volume=this.value;">
+					</div>
+					<div class="form-check form-switch">
+						<input class="form-check-input" type="checkbox" id="cbSFX" checked>
+						<label class="form-check-label">對錯音效 SFX</label>
+					</div>
+				</div>
+				<div class="modal-footer" id="timeBtns">
+					<button class="bTime btn btn-outline-primary" data-bs-dismiss="modal" onclick="gameStart(60);">1分鐘</button>
+					<button class="bTime btn btn-outline-info" data-bs-dismiss="modal" onclick="gameStart(180);">3分鐘</button>
+					<button class="bTime btn btn-outline-success" data-bs-dismiss="modal" onclick="gameStart(300);">5分鐘</button>
+					<button class="bTime btn btn-outline-warning" data-bs-dismiss="modal" onclick="gameStart(600);">10分鐘</button>
+					<button class="bTime btn btn-outline-danger" data-bs-dismiss="modal" onclick="gameStart(0);">不限時</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="modalRanks" class="modal" tabindex="-1">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header"><h5 class="modal-title fw-bold">本機排行榜</h5></div>
+				<dl class="modal-body" id="rankboard"></dl>
+				<div class="modal-footer justify-content-between">
+					<button class="btn btn-sm btn-outline-danger" data-bs-dismiss="modal" onclick="clearRank();">清除排行榜</button>
+					<button class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">關閉</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="modalInfo" class="modal" tabindex="-1">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header"><h5 class="modal-title fw-bold">關於</h5></div>
+				<div class="modal-body">
+					<p>作者：陳政忠 &lt;terric&#64;gmail.com&gt;<br>若有建議或回饋，歡迎填寫<a target="_blank" href="https://forms.gle/YXkAM6tjYtXDVajK9">表單</a>。</p>
+					<p>BGM and SFX from <a target="_blank" href="https://dova-s.jp/">DOVA-SYNDROME</a><br>單字來自網路、<a target="_blank" href="https://www.ceec.edu.tw/">大學考試中心</a>及<a target="_blank" href="http://www.taiwantestcentral.com/">台灣測驗中心</a></p>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">關閉</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<audio id="bgm" loop><source src="bgm.mp3" type="audio/mpeg"></audio>
+	<audio id="sfx_o"><source src="sfx_o.mp3" type="audio/mpeg"></audio>
+	<audio id="sfx_x"><source src="sfx_x.mp3" type="audio/mpeg"></audio>
+
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="typing.js"></script>
+	<script>
+		function gameStart(t) {
+			if(gameLv==0) {
+				alert("請先選擇題庫！");
+				$('#modalSettings').modal('show');
+				return;
+			}
+			gameTime=t;
+			wordCount=0;
+			gameScore=0;
+			get("score").innerHTML=0;
+			get("time").innerHTML=gameTime;
+			get("input").focus();
+			$("#wordCount").toggle(gameTime==0);
+			$("#timeBtns").hide();
+			if(get("cbBGM").checked) get("bgm").play();
+			if(gameTime>0) {
+				changeWords();
+				wordSpeed=1000;
+				timeCount=gameTime;
+				gameTimer=setInterval(()=>{
+					get("time").innerHTML=(--timeCount);
+					if(timeCount<=0) gameStop();
+				},1000);
+			} else {
+				changeWords(0,6);
+				wordSpeed=2000;
+				timeCount=0;
+				$("#btnStop").show();
+				gameTimer=setInterval(()=>{
+					gameTime++;
+					timeStr=gameTime;
+					if(gameTime>60) timeStr=`${Math.floor(gameTime/60)}m ${gameTime%60}`;
+					get("time").innerHTML=timeStr;
+				},1000);
+			}
+			wordTimer=setInterval(createWord,wordSpeed);
+			gamePlaying=1;
+		}
+		function gameStop() {
+			if(!gamePlaying) return;
+			gamePlaying=0;
+			clearInterval(wordTimer);
+			clearInterval(gameTimer);
+			if(get("cbBGM").checked) get("bgm").pause();
+			gets(".word").forEach(function(o){remove(o);});
+			get("msg").innerHTML=`恭喜你得了 ${gameScore} 分！`;
+			$(".toast").toast("show");
+			$("#timeBtns").show();
+			$("#btnStop").hide();
+			if(gameScore>0) setRank();
+		}
+		function gameInit() {
+			gamePlaying=0;
+			gameLv=gameTime=gameScore=0;
+			loadWords();
+			get('volBGM').value=0.5;
+			get('bgm').volume=get('volBGM').value;
+			$("#input").on('blur',function() {
+				$('.modal').hasClass('show') || get("input").focus();
+			});
+			$(".modal").on('hidden.bs.modal', function() {
+				get("input").focus();
+			});
+			$("#wordCount").hide();
+			$("#modalRanks").on('show.bs.modal',getRank);
+			$('#modalSettings').modal('show');
+			boardResize();
+		}
+		function getRank() {
+			var LvTitle={"j1":"國中基本單字","j2":"國中進階單字","s0":"高中不分級","s1":"高中第一級","s2":"高中第二級","s3":"高中第三級","s4":"高中第四級","s5":"高中第五級","s6":"高中第六級"};
+			var rank=null;
+			get("rankboard").innerHTML="";
+			if(localStorage.getItem("typing")) {
+				rank=JSON.parse(localStorage.typing);
+				for(var lv of Object.keys(rank).sort()) {
+					var t=document.createElement("dt");
+					t.innerHTML=LvTitle[lv];
+					var o=document.createElement("ol");
+					o.setAttribute("id","ol"+lv);
+					for(var x of rank[lv]) {
+						var y=document.createElement("li");
+						var z=Number(x.score/(x.time/60)).toFixed(1);
+						y.innerHTML=`${z} WPM, ${x.score} in ${x.time} seconds.`;
+						if(x.score==gameScore && x.time==gameTime && lv==gameLv) y.className="text-danger";
+						o.appendChild(y);
+					};
+					t.appendChild(o);
+					get("rankboard").appendChild(t);
+				};
+			} else {
+				get("rankboard").innerHTML="等你來挑戰！";
+			}
+		}
+		function setRank() {
+			var rank={};
+			if(localStorage.getItem("typing")) {
+				rank=JSON.parse(localStorage.typing);
+			}
+			if(Object.keys(rank).includes(gameLv)) {
+				rank[gameLv].push({"score":gameScore,"time":gameTime});
+				rank[gameLv].sort(function(a,b) {
+					return (b.score/b.time)-(a.score/a.time);
+				});
+				if(rank[gameLv].length > 5) rank[gameLv].pop();
+			} else {
+				Object.defineProperty(rank, gameLv, {value:[{"score":gameScore,"time":gameTime}],writable:true,enumerable:true,configurable:true});
+			}
+			localStorage.setItem("typing",JSON.stringify(rank));
+		}
+		function clearRank() {
+			localStorage.removeItem("typing");
+		}
+	</script>
+</body>
+</html>
