@@ -17,7 +17,7 @@
 			border-radius: 4px;
 		}
 		.sd {
-			width: 60px;
+			width: 70px;
 		}
 		tr td:nth-child(2) {
 			border: 0px solid black;
@@ -55,7 +55,7 @@
 				</div>
 				<div class="col-6 d-none QQ">
 					<div class="d-flex justify-content-between">過程：<button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalSD">短除法小工具</button></div>
-					<textarea class="form-control" onkeydown="loadMath(event,this);"></textarea></div>
+					<textarea class="form-control" rows="10" onkeydown="loadMath(event,this);"></textarea></div>
 				<div class="col-6 d-none QQ" id="math"></div>
 			</div>
 		</div>
@@ -111,7 +111,8 @@
 			if(ev.key!="Enter") return;
 			const cs={"\n":"\\\\","*":"\\times","/":"\\div","=>":"\\Rightarrow","\\sd":"\\lfloor\\underline"};
 			var s=$(txt).val().replaceAll(" ","").replaceAll("\n\n","\n");
-			$(txt).val(s).attr("rows",s.match(/\n/g)?.length+2);
+			var r=s.match(/\n/g)?.length+2;
+			$(txt).val(s).attr("rows",(r>10)?r:10);
 			for(var c of Object.keys(cs)) s=s.replaceAll(c,cs[c]);
 			$("#math").html(`\\[${s}\\]`);
 			MathJax.Hub.Queue(["Typeset",MathJax.Hub,"math"]);
