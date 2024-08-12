@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-hant-tw">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="Author" content="Terric Chen, terric_AT_gmail_com">
+	<title>進位換算</title>
+	<link href="binary.ico" rel="icon">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+	<style>
+		body {
+			font-family: Consolas, Verdana, Arial, sans-serif;
+		}
+		.loginIcon {
+			width: 32px;
+			border-radius: 4px;
+		}
+		td {
+			min-width: 45px;
+		}
+	</style>
+</head>
+<body>
+	<div class="card vh-100">
+		<div class="card-header">
+			<ul class="nav nav-tabs card-header-tabs me-0">
+				<li class="navbar-brand fs-4 fw-bold px-3 text-success">進位換算</li>
+				<li><a class="nav-link active" href="binary_help.html">說明</a></li>
+				<li><a class="nav-link" href="binary.html">練習</a></li>
+			</ul>
+		</div>
+		<div class="card-body overflow-y-auto">
+			<div class="list-group" id="helps">
+				<a href="#help-1" class="list-group-item list-group-item-action list-group-item-primary" data-bs-toggle="collapse">常用TeX/LaTeX部分語法</a>
+				<div class="list-group-item list-group-item-action collapse" data-bs-parent="#helps" id="help-1">
+					<table class="table table-sm table-bordered table-striped text-center align-middle">
+						<tr><th width=25%>語法</th><th width=25%>意義</th><th width=25%>範例</th><th width=25%>預覽</th></tr>
+						<tr><td>{}</td><td>打包</td><td>正確: 12^{34}<br>錯誤: 12^34</td><td>$$正確: 12^{34}\\錯誤: 12^34$$</td></tr>
+						<tr><td>^</td><td>上標、次方</td><td>2^5</td><td>$$2^5$$</td></tr>
+						<tr><td>_</td><td>下標、基底</td><td>123_{(10)}</td><td>$$123_{(10)}$$</td></tr>
+						<tr><td>\times<br>本站可用 *</td><td>乗法</td><td>2\times5<br>本站可用 2*5</td><td>$$2\times5$$</td></tr>
+						<tr><td>\div<br>本站可用 /</td><td>除法</td><td>2\div5<br>本站可用 2/5</td><td>$$2\div5$$</td></tr>
+						<tr><td>\Rightarrow<br>本站可用 =></td><td>向右箭頭</td><td>1\Rightarrow2<br>本站可用 1=>2</td><td>$$1\Rightarrow2$$</td></tr>
+						<tr><td>~</td><td>半型空白</td><td>1~2~3</td><td>$$1~2~3$$</td></tr>
+						<tr><td>\\</td><td>換行</td><td>12\\3</td><td>$$12\\3$$</td></tr>
+						<tr><td>\lfloor\underline<br>本站可用 \sd</td><td>短除法效果</td><td>\lfloor\underline{123}<br>本站可用 \sd{123}</td><td>$$\lfloor\underline{123}$$</td></tr>
+						<tr><td>\cdots</td><td>三個點</td><td>1\cdots2</td><td>$$1\cdots2$$</td></tr>
+						<tr><td>\begin&#2;{array}{r}<br>...&...<br>\end{array}</td><td>進階短除法效果<br>{r}向右對齊點&</td><td>\begin&#2;{array}{r}<br>{2}\sd{11}&\\<br>\sd{5}&\cdots{1}\\<br>\sd{2}&\cdots{1}\\<br>{1}&\cdots{0}<br>\end{array}</td><td>\begin{array}{r}\\2\lfloor\underline{11}&\\\lfloor\underline{5}&\cdots{1}\\\lfloor\underline{2}&\cdots{1}\\{1}&\cdots{0}\end{array}</td></tr>
+						<tr><td>\frac{a}{b}</td><td>分數</td><td>\frac{1}{2}</td><td>$$\frac{1}{2}$$</td></tr>
+						<tr><td>\sqrt{a}</td><td>根號</td><td>\frac{-b\pm\sqrt{b^2-4ac}}{2a}</td><td>$$\frac{-b\pm\sqrt{b^2-4ac}}{2a}$$</td></tr>
+					</table>
+				</div>
+				<a href="#help-2" class="list-group-item list-group-item-action list-group-item-danger" data-bs-toggle="collapse">進制表示法</a>
+				<div class="list-group-item list-group-item-action collapse" data-bs-parent="#helps" id="help-2">
+					<dt>名詞解釋：<ul>
+						<li>基底(base)：通常標示在數字的右下角，表示數字的進制。例如：1011<sub>(2)</sub>的基底為2。</li>
+						<li>位數(position)：十進位的個位數、十位數、百位數…，即為第0位數、第1位數、第2位數…。</li>
+						<li>權數(weight)：第n位數的權數，即為基底的n次方。<br>十進位的話，個位數(第0位數)的權數為10<sup>0</sup>=1；十位數(第1位數)的權數為10<sup>1</sup>；百位數(第2位數)的權數為10<sup>2</sup></li>
+						<li>進位： N進位就是遇到N就進位，所以每位數能使用的符號就是0~N-1個符號，共N種符號。<br>例如10進位，就是遇到10就進位，因此能用的符號只有0~9，共十種符號。而2進位就是只有0和1兩種符號。
+						<br>至於16進位，就是遇到16才進位，因此單一位數可以有16種符號，代表0~15的數字，因為我們常用的數字只有十種符號，所以向英文字母借用六個符號A~F，不分大小寫但常用大寫。</li>
+					</ul></dt>
+					<table class="table table-sm table-bordered table-striped d-inline-block text-end align-middle">
+						<tr><td>十進位<sub>(10)</sub><br>decimal,dec</td><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td><td>16</td></tr>
+						<tr><td>二進位<sub>(2)</sub><br>binary,bin</td><td>0</td><td>1</td><td>10</td><td>11</td><td>100</td><td>101</td><td>110</td><td>111</td><td>1000</td><td>1001</td><td>1010</td><td>1011</td><td>1100</td><td>1101</td><td>1110</td><td>1111</td><td>10000</td></tr>
+						<tr><td>八進位<sub>(8)</sub><br>octal,oct</td><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td><td>16</td><td>17</td><td>20</td></tr>
+						<tr><td>十六進位<sub>(16)</sub><br>hexadecimal,hex</td><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>A</td><td>B</td><td>C</td><td>D</td><td>E</td><td>F</td><td>10</td></tr>
+					</table>
+					<ul>
+						<li>數字的<b>表示法</b>因為不是只有十進位，所以唸法是單一數字(符號)分開唸，例如一二三。</li>
+						<li>數字的<b>大小</b>通常用來比較或計算，所以就用十進位的唸法，例如一百二十三。計算過程通常是十進位，基底可省略。</li>
+						<li>綜合唸法：例如寫法 123<sub>(10)</sub>=123，唸法為 基底為十的一二三等於一百二十三。</li>
+					</ul>
+				</div>
+				<a href="#help-3" class="list-group-item list-group-item-action list-group-item-warning" data-bs-toggle="collapse">十進位與其它進位的互換方法</a>
+				<div class="list-group-item list-group-item-action collapse" data-bs-parent="#helps" id="help-3">
+					<p>進位轉換其實和單位換算很類似。<br>你可以思考長度單位或重量單位的轉換(公制或非公制都可以)，例如10公分是幾英吋？因為每2.54公分可以換算成1英吋，所以將10除以2.54=3英吋又2.38公分。
+					<br>又或是自定單位，例如蘋果，假設一袋裝八顆、一盒裝八袋、一箱裝八盒、一籃裝八箱、…，123顆蘋果可以怎麼裝？
+					<br>123顆/8=15袋，剩3顆；15袋/8=1盒，剩7袋。所以123顆蘋果，可以裝成 1盒7袋又3顆。這些自定單位，就像是權數，例如1盒有8袋就是8<sup>2</sup>顆</p>
+					<p>數字部份則是進位失敗剩下來的餘數。可用短除法表示：$$\begin{array}{r}{8}\lfloor\underline{123顆}&\\\lfloor\underline{15袋}&\cdots{3顆=8^0}\\{1盒}&\cdots{7袋=8^1}\\8^2\end{array}$$</p>
+					<p>所以 123<sub>(10)</sub> = 173<sub>(8)</sub>。換句話說，\[ 173_{(8)} = 1 \times 8^2 + 7 \times 8^1 + 3 \times 8^0 = 64 + 56 +3 = 123_{(10)} \]</p>
+					<p>再一個直白的例子：\[ 123_{(10)} = 1 \times 10^2 + 2 \times 10^1 + 3 \times 10^0 = 100 + 20 + 3 = 123 \]</p>
+					<p>整理口訣如下：<ul>
+						<li>10進位轉N進位：短除法除以N，由下往上寫餘數。</li>
+						<li>N進位轉10進位：數字乘以權數的加總。</li>
+					</ul></p>
+				</div>
+				<a href="#help-4" class="list-group-item list-group-item-action list-group-item-info" data-bs-toggle="collapse">二進位與十進位的互換技巧</a>
+				<div class="list-group-item list-group-item-action collapse" data-bs-parent="#helps" id="help-4">
+					<p>二進位與十進位的互換，當然適用上述的方法。
+					<br>二進位轉十進位，一樣可以用【數字乘以權數的加總】的口訣，然而二進位的數字只有0與1，而權數都是2的次方數，因此可以轉變成【1位元所在的2的次方數相加】。</p>
+					<ul><li>例如：10101<sub>(2)</sub> =1&times;2<sup>4</sup>+0&times;2<sup>3</sup>+1&times;2<sup>2</sup>+0&times;2<sup>1</sup>+1&times;2<sup>0</sup> =2<sup>4</sup>+2<sup>2</sup>+2<sup>0</sup> =16+4+1 =21</li></ul>
+					<p>十進位轉二進位，當然也可以用【短除法取餘數】，只是可能要除很久(算式很長)，因此可以換個角度來看。
+					<br>上面的例子指出二進位將1位元所在位置的2的次方數相加就會得到十進位，換句話說將十進位【拆成2的次方數相加，次方即為1位元的位置】。</p>
+					<ul><li>例如：153 =128+25 =128+16+9 =128+16+8+1 =2<sup>7</sup>+2<sup>4</sup>+2<sup>3</sup>+2<sup>0</sup> = 10011001<sub>(2)</sub></li></ul>
+					<p>已知N個連續1位元的二進位，轉換為十進位是 2<sup>N-1</sup>+2<sup>N-2</sup>+...+2<sup>2</sup>+2<sup>1</sup>+2<sup>0</sup> = 2<sup>N</sup>-1
+					<br>因此當1位元的數量較多，要加總的2的次方數較多時，我們也可以從另一個角度，例如減法來看：N個連續1位元，減掉0位元所在的2的次方數，即為十進位。</p>
+					<ul><li>例如：11101101<sub>(2)</sub> = 8個連續1位元，減掉2個0位元的位置 = (2<sup>8</sup>-1)-(2<sup>4</sup>+2<sup>1</sup>) =255-18 =237</li></ul>
+					<p>有了減法的概念後，遇到十進位要拆成很多個2的次方數相加，或是較靠近下一個2的次方數時，就可以考慮用減法。但特別提醒從 2<sup>N</sup>-1 開始減，而不是2的N次方開始減。</p>
+					<ul><li>例如：1000<sub>(10)</sub> =1023-23 =(2<sup>10</sup>-1)-(16+4+2+1) =10位元長並有4個零位元 =1111101000<sub>(2)</sub></li></ul>
+					<hr><p>位元位移的關係：<ul>
+						<li>位元左移：左移n位元，代表乘以基底的n次方。例如：12003<sub>(10)</sub> =12&times;10<sup>3</sup>+3；111001<sub>(2)</sub> =7&times;2<sup>3</sup>+1 =57 (=2<sup>5</sup>+2<sup>4</sup>+2<sup>3</sup>+1)</li>
+						<li>位元右移：右移n位元，代表除以基底的n次方。</li>
+					</ul></p>
+				</div>
+				<a href="#help-5" class="list-group-item list-group-item-action list-group-item-success" data-bs-toggle="collapse">二、八、十六進位的互換</a>
+				<div class="list-group-item list-group-item-action collapse" data-bs-parent="#helps" id="help-5">
+					<p>二、八、十六進位的互換，當然也可以透過十進位作為中繼媒介，只是計算過程較為繁瑣。<br>由於八進位與十六進位都是二的次方數，因此透過二進位作為媒介會較為簡易。</p>
+					<p>例如：567<sub>(8)</sub> =5&times;8<sup>2</sup>+6&times;8<sup>1</sup>+7&times;8<sup>0</sup> =(4+1)&times;2<sup>6</sup>+(4+2)&times;2<sup>3</sup>+(4+2+1)&times;2<sup>0</sup> =(2<sup>8</sup>+2<sup>6</sup>)+(2<sup>5</sup>+2<sup>4</sup>)+(2<sup>2</sup>+2<sup>1</sup>+2<sup>0</sup>) = 101 110 111<sub>(2)</sub>
+					<br>由於8=2<sup>3</sup>，因此八進位的一次進位等於二進位的三次進位；八進位的一位數可以直接轉換成二進位的三位數。
+					<br>同理來說，16=2<sup>4</sup>，因此十六進位的一位數可以直接轉換成二進位的四位數；反之亦然。</p>
+					<table class="table table-sm table-bordered table-striped d-inline-block text-center">
+						<tr><td>二進位</td><td>八進位</td><td></td><td>二進位</td><td>十六進位</td><td>二進位</td><td>十六進位</td></tr>
+						<tr><td>000</td><td>0</td><td></td><td>0000</td><td>0</td><td>1000</td><td>8</td></tr>
+						<tr><td>001</td><td>1</td><td></td><td>0001</td><td>1</td><td>1001</td><td>9</td></tr>
+						<tr><td>010</td><td>2</td><td></td><td>0010</td><td>2</td><td>1010</td><td>A</td></tr>
+						<tr><td>011</td><td>3</td><td></td><td>0011</td><td>3</td><td>1011</td><td>B</td></tr>
+						<tr><td>100</td><td>4</td><td></td><td>0100</td><td>4</td><td>1100</td><td>C</td></tr>
+						<tr><td>101</td><td>5</td><td></td><td>0101</td><td>5</td><td>1101</td><td>D</td></tr>
+						<tr><td>110</td><td>6</td><td></td><td>0110</td><td>6</td><td>1110</td><td>E</td></tr>
+						<tr><td>111</td><td>7</td><td></td><td>0111</td><td>7</td><td>1111</td><td>F</td></tr>
+					</table>
+					<ul><li>例如：567<sub>(8)</sub> = 101 110 111<sub>(2)</sub> = 1 0111 0111<sub>(2)</sub> = 177<sub>(16)</sub></li></ul>
+				</div>
+			</div>
+		</div>
+		<div class="card-footer">
+			<a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh-hant"><img src="https://mirrors.creativecommons.org/presskit/buttons/88x31/png/by-sa.png" alt="CC-BY-SA" title="CC-BY-SA" width="88"></a>
+			<span>BY TERRIC CHEN <i class="bi bi-geo-alt text-danger"></i>FHSH <i class="bi bi-at text-primary"></i>KAOHSIUNG,TAIWAN</span>
+			<a target="_blank" href="https://www.mathjax.org" class="float-end"><img src="https://www.mathjax.org/badge/badge.gif" title="Powered by MathJax" alt="Powered by MathJax"/></a>
+		</div>
+	</div>
+
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS_CHTML" async></script>
+</body>
+</html>

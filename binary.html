@@ -33,8 +33,8 @@
 		<div class="card-header">
 			<ul class="nav nav-tabs card-header-tabs me-0">
 				<li class="navbar-brand fs-4 fw-bold px-3 text-success">進位換算</li>
-				<li><a class="nav-link" href="#">說明</a></li>
-				<li><a class="nav-link active" href="binary.html">自我練習</a></li>
+				<li><a class="nav-link" href="binary_help.html">說明</a></li>
+				<li><a class="nav-link active" href="binary.html">練習</a></li>
 			</ul>
 		</div>
 		<div class="card-body">
@@ -51,18 +51,18 @@
 					<div class="form-group d-inline position-relative">
 						<input class="form-control d-inline w-auto" id="Ans"><span class="badge position-absolute" style="right:-10px;top:-20px;"></span>
 					</div><sub>(<span id="Qb">2</span>)</sub>
-					<button class="btn btn-sm btn-outline-warning" onclick="check();">送出</button>
+					<button class="btn btn-sm btn-outline-warning" onclick="checkAns();">送出</button>
 				</div>
 				<div class="col-6 d-none QQ">
 					<div class="d-flex justify-content-between">過程：<button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalSD">短除法小工具</button></div>
-					<textarea class="form-control" rows="10" onkeydown="loadMath(event,this);"></textarea></div>
+					<textarea class="form-control" rows="10" onkeydown="KeyDown(event);"></textarea></div>
 				<div class="col-6 d-none QQ" id="math"></div>
 			</div>
 		</div>
 		<div class="card-footer">
 			<a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh-hant"><img src="https://mirrors.creativecommons.org/presskit/buttons/88x31/png/by-sa.png" alt="CC-BY-SA" title="CC-BY-SA" width="88"></a>
 			<span>BY TERRIC CHEN <i class="bi bi-geo-alt text-danger"></i>FHSH <i class="bi bi-at text-primary"></i>KAOHSIUNG,TAIWAN</span>
-			<a target="_blank" href="https://www.mathjax.org" class="float-end"><img title="Powered by MathJax" src="https://www.mathjax.org/badge/badge.gif" alt="Powered by MathJax"/></a>
+			<a target="_blank" href="https://www.mathjax.org" class="float-end"><img src="https://www.mathjax.org/badge/badge.gif" title="Powered by MathJax" alt="Powered by MathJax"/></a>
 		</div>
 	</div>
 
@@ -91,7 +91,7 @@
 			$("#Ans").text("");
 			$(".QQ").removeClass("d-none");
 		}
-		function check() {
+		function checkAns() {
 			if(parseInt($("#Qn").text(),$("#Qa").text())==parseInt($("#Ans").val(),$("#Qb").text())) {
 				$(".badge").addClass("bg-success").removeClass("bg-danger").text("正確");
 			} else {
@@ -107,8 +107,7 @@
 		}
 	</script>
 	<script src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS_CHTML" async>
-		function loadMath(ev,txt) {
-			if(ev.key!="Enter") return;
+		function typeset(txt) {
 			const cs={"\n":"\\\\","*":"\\times","/":"\\div","=>":"\\Rightarrow","\\sd":"\\lfloor\\underline"};
 			var s=$(txt).val().replaceAll(" ","").replaceAll("\n\n","\n");
 			var r=s.match(/\n/g)?.length+2;
@@ -116,6 +115,10 @@
 			for(var c of Object.keys(cs)) s=s.replaceAll(c,cs[c]);
 			$("#math").html(`\\[${s}\\]`);
 			MathJax.Hub.Queue(["Typeset",MathJax.Hub,"math"]);
+		}
+		function KeyDown(ev) {
+			if(ev.key!="Enter") return;
+			typeset(ev.target);
 		}
 		function copySD() {
 			var data=[];
