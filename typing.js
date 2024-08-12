@@ -96,8 +96,8 @@ function changeWords(m=0,n=0) {
 	wordTotal=window.word.length;
 	get("countTotal").innerHTML=`${wordCount}/${wordTotal}`;
 }
-function loadWords() {
-	fetch("words.json").then(response => response.json())
+function loadWords(filename) {
+	fetch(filename).then(response => response.json())
 		.then(data => {
 			window.words = data.map(item => {
 				return {en:item.en,Lv:item.Lv,tc:item.tc};
